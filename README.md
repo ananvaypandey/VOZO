@@ -1,14 +1,12 @@
 <div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&height=230&text=VOZO&fontSize=70&fontAlignY=38&animation=fadeIn&fontColor=ffffff&color=0:6C63FF,50:00C2FF,100:22D3EE"/>
 
-<img src="https://readme-typing-svg.demolab.com?font=Sora&weight=700&size=30&duration=3500&pause=1000&color=00C2FF&center=true&vCenter=true&width=900&lines=Offline+Messaging+Reimagined.;Chat+Without+Internet.;Powered+by+Nearby+Connections+API.;Bluetooth+•+WiFi+Direct+•+P2P"/>
+
 
 <br>
 
 <img src="assets/logo.png" width="180"/>
 
-# 📡 VOZO
 
 ### Chat Beyond the Internet
 
