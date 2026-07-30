@@ -36,7 +36,7 @@
 
 VOZO is a modern **offline-first messaging application** that allows users to communicate **without mobile data, internet, SIM cards, or traditional messaging infrastructure.**
 
-Built using **Google Nearby Connections API**, VOZO enables seamless peer-to-peer communication over Bluetooth and Wi-Fi Direct.
+Built using **Google Nearby Connections API**, VOZO enables seamless peer-to-peer communications over different alternatives as BLUETOOH and WIFI
 
 ---
 
