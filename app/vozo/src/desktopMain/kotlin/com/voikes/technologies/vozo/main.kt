@@ -8,6 +8,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.voikes.technologies.vozo.data.ChatStore
 import com.voikes.technologies.vozo.data.DatabaseDriverFactory
 import com.voikes.technologies.vozo.db.VozoDatabase
+import com.voikes.technologies.vozo.mesh.UnavailableTransport
 
 fun main() = application {
     val windowState = rememberWindowState(
@@ -22,6 +23,7 @@ fun main() = application {
         val store = remember {
             ChatStore(VozoDatabase(DatabaseDriverFactory().createDriver()))
         }
-        App(store = store)
+        val transport = remember { UnavailableTransport() }
+        App(store = store, transport = transport)
     }
 }

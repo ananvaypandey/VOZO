@@ -16,7 +16,30 @@ CREATE TABLE message (
     created_at INTEGER NOT NULL
 );
 
+CREATE TABLE peer (
+    id TEXT NOT NULL PRIMARY KEY,
+    display_name TEXT NOT NULL,
+    last_seen INTEGER NOT NULL
+);
+
 CREATE INDEX idx_message_conversation ON message(conversation_id, created_at);
+
+upsertPeer:
+INSERT OR REPLACE INTO peer (id, display_name, last_seen) VALUES (?, ?, ?);
+
+selectPeers:
+SELECT * FROM peer ORDER BY last_seen DESC;
+
+CREATE TABLE local_state (
+    key TEXT NOT NULL PRIMARY KEY,
+    value TEXT NOT NULL
+);
+
+getLocalState:
+SELECT value FROM local_state WHERE key = ?;
+
+setLocalState:
+INSERT OR REPLACE INTO local_state (key, value) VALUES (?, ?);
 
 selectConversations:
 SELECT * FROM conversation ORDER BY updated_at DESC;
@@ -37,3 +60,9 @@ SELECT * FROM message WHERE conversation_id = ? ORDER BY created_at ASC, id ASC;
 insertMessage:
 INSERT INTO message (conversation_id, sender, body, status, created_at)
 VALUES (?, ?, ?, ?, ?);
+
+selectConversationByPeer:
+SELECT * FROM conversation WHERE peer_id = ? LIMIT 1;
+
+setMessageStatus:
+UPDATE message SET status = ? WHERE id = ?;

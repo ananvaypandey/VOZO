@@ -31,7 +31,7 @@
 
 ---
 
-# Phase 02 — Offline Chat (in development)
+# Phase 03 — Peer-to-Peer Mesh (in development)
 
 VOZO is being rebuilt as a **Kotlin Multiplatform (Compose Multiplatform)** app
 targeting Android (Play Store) + Windows + macOS. Offline-first, P2P mesh.
@@ -39,22 +39,33 @@ targeting Android (Play Store) + Windows + macOS. Offline-first, P2P mesh.
 > Legacy Google AI Studio prototype content below is retained for reference
 > and will be replaced as development proceeds.
 
-## Current status (P02)
-- **Offline text chat works.** Messages are stored in a local SQLite database
-  (SQLDelight) and survive app restarts — fully offline.
-- Chats tab lists real conversations; create a new chat, send messages, reopen.
-- Material 3 theme (VOZO violet `#6C5CE7`, cyan, mint), light/dark mode.
-- Android + desktop (Windows/macOS) share the same UI and database layer.
-- Peer-to-peer transport is **not yet implemented** (P03 onward).
+## Current status (P03)
+- **Two phones can now talk to each other with no internet.** Peers are found
+  and connected over Bluetooth / Wi-Fi Direct using Google Nearby Connections.
+- Messages are written to the local database first, then sent to the peer.
+- The **Mesh** tab shows live discovered peers and their connection state.
+  Tap a peer to open a direct chat.
+- Everything is still stored locally, so history survives offline.
+- Desktop joins the mesh in P05 (hotspot + mDNS/TCP).
+
+## How to test with two phones
+1. Install `vozo-debug.apk` on **both** phones (Android 6+, Google Play Services).
+2. Launch VOZO on both and allow the Nearby / Bluetooth / Location permissions.
+3. Open the **Mesh** tab on both. Each phone should list the other.
+4. Tap the peer, type a message, send. It should appear on the other phone.
+5. Turn off Wi-Fi and mobile data on both to confirm it is truly offline.
+
+If the Mesh tab stays empty, check that Location is enabled (Android requires
+it for peer discovery) and that both phones are within a few metres.
 
 ## Project layout
 ```
 app/
   vozo/
-    src/commonMain/       shared UI + data (theme, nav, screens, ChatStore)
+    src/commonMain/       shared UI + data (theme, nav, screens, ChatStore, mesh)
     src/commonMain/sqldelight/   SQLite schema
-    src/androidMain/      Android entry + driver
-    src/desktopMain/      desktop entry + driver
+    src/androidMain/      Android entry + Nearby transport + SQLite driver
+    src/desktopMain/      desktop entry + SQLite driver (mesh in P05)
   gradle/libs.versions.toml
 ```
 

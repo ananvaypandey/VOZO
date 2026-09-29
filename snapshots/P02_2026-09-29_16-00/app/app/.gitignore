@@ -1,0 +1,16 @@
+.gradle/
+build/
+**/build/
+local.properties
+.kotlin/
+.idea/
+*.iml
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+*.user
+*.db
+*.db-shm
+*.db-wal
+*.sqlite

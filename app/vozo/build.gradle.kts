@@ -40,6 +40,7 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
+        implementation(libs.play.services.nearby)
             implementation(libs.sqldelight.android.driver)
         }
         desktopMain.dependencies {
