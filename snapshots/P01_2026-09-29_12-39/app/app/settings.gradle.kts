@@ -1,4 +1,6 @@
-rootProject.name = "vozo"
+rootProject.name = "VOZO"
+
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
     repositories {
@@ -31,4 +33,4 @@ dependencyResolutionManagement {
     }
 }
 
-include(":vozo")
+include(":composeApp")

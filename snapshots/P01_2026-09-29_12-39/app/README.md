@@ -31,7 +31,7 @@
 
 ---
 
-# Phase 02 — Offline Chat (in development)
+# Phase 01 — Project Scaffold (in development)
 
 VOZO is being rebuilt as a **Kotlin Multiplatform (Compose Multiplatform)** app
 targeting Android (Play Store) + Windows + macOS. Offline-first, P2P mesh.
@@ -39,31 +39,28 @@ targeting Android (Play Store) + Windows + macOS. Offline-first, P2P mesh.
 > Legacy Google AI Studio prototype content below is retained for reference
 > and will be replaced as development proceeds.
 
-## Current status (P02)
-- **Offline text chat works.** Messages are stored in a local SQLite database
-  (SQLDelight) and survive app restarts — fully offline.
-- Chats tab lists real conversations; create a new chat, send messages, reopen.
+## Current status (P01)
+- KMP scaffold with Android + desktop (JVM) targets.
 - Material 3 theme (VOZO violet `#6C5CE7`, cyan, mint), light/dark mode.
-- Android + desktop (Windows/macOS) share the same UI and database layer.
-- Peer-to-peer transport is **not yet implemented** (P03 onward).
+- Navigation shell: Home, Chats, Mesh, Account tabs; chat thread placeholder.
+- Transport is **not yet implemented** (P03 onward).
 
 ## Project layout
 ```
 app/
-  vozo/
-    src/commonMain/       shared UI + data (theme, nav, screens, ChatStore)
-    src/commonMain/sqldelight/   SQLite schema
-    src/androidMain/      Android entry + driver
-    src/desktopMain/      desktop entry + driver
+  composeApp/
+    src/commonMain/   shared UI (theme, navigation, screens)
+    src/androidMain/  Android entry
+    src/desktopMain/  desktop entry
   gradle/libs.versions.toml
 ```
 
 ## Build
 ```bash
 cd app
-./gradlew :vozo:assembleDebug              # Android APK
-./gradlew :vozo:packageMsi/packageExe      # Windows installer
-./gradlew :vozo:run                        # run desktop app
+./gradlew :composeApp:assembleDebug              # Android APK
+./gradlew :composeApp:packageMsi/packageExe      # Windows installer
+./gradlew :composeApp:run                        # run desktop app
 ```
 
 Requires JDK 17+ and Android SDK (see `app/local.properties`).
