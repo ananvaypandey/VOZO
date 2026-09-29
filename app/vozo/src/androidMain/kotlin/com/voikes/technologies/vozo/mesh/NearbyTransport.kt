@@ -33,6 +33,9 @@ class NearbyTransport(
     private val _state = MutableStateFlow<TransportState>(TransportState.Idle)
     override val state: StateFlow<TransportState> = _state.asStateFlow()
     override val peers: StateFlow<List<Peer>> = registry.peers
+    override val label: String = "Nearby"
+
+    override var onFrame: (String) -> Unit = {}
 
     private var client: ConnectionsClient? = null
 
@@ -44,9 +47,6 @@ class NearbyTransport(
     private val endpointByPeer = mutableMapOf<String, String>()
     private val peerByEndpoint = mutableMapOf<String, String>()
     private val pendingEndpoints = mutableSetOf<String>()
-
-    @Volatile
-    var onFrame: (String) -> Unit = {}
 
     private val payloadCallback = object : PayloadCallback() {
         override fun onPayloadReceived(endpointId: String, payload: Payload) {
@@ -119,10 +119,7 @@ class NearbyTransport(
     }
 
     private fun handleFrame(endpointId: String, raw: String) {
-        when (Wire.parse(raw)) {
-            is Wire.Frame.Hello -> Unit
-            else -> onFrame(raw)
-        }
+        onFrame(raw)
     }
 
     override fun start() {
@@ -169,6 +166,14 @@ class NearbyTransport(
         val endpoint = endpointByPeer[peerId] ?: return false
         c.sendPayload(endpoint, Payload.fromBytes(payload.toByteArray(StandardCharsets.UTF_8)))
         return true
+    }
+
+    override fun broadcast(raw: String) {
+        val c = client ?: return
+        val targets = endpointByPeer.values
+        if (targets.isEmpty()) return
+        val data = Payload.fromBytes(raw.toByteArray(StandardCharsets.UTF_8))
+        targets.forEach { c.sendPayload(it, data) }
     }
 
     fun hasPermissions(): Boolean = requiredPermissions().all {

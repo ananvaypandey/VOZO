@@ -31,7 +31,7 @@
 
 ---
 
-# Phase 03 — Peer-to-Peer Mesh (in development)
+# Phase 05 — Phone ↔ Desktop Mesh (in development)
 
 VOZO is being rebuilt as a **Kotlin Multiplatform (Compose Multiplatform)** app
 targeting Android (Play Store) + Windows + macOS. Offline-first, P2P mesh.
@@ -39,14 +39,32 @@ targeting Android (Play Store) + Windows + macOS. Offline-first, P2P mesh.
 > Legacy Google AI Studio prototype content below is retained for reference
 > and will be replaced as development proceeds.
 
-## Current status (P03)
-- **Two phones can now talk to each other with no internet.** Peers are found
-  and connected over Bluetooth / Wi-Fi Direct using Google Nearby Connections.
+## Current status (P05)
+- **Two phones can talk with no internet** (P03). Peers are found and connected
+  over Bluetooth / Wi-Fi Direct using Google Nearby Connections.
+- **Your phone and your computer can now talk too.** The phone hosts a TCP
+  endpoint on port `47653` and advertises it; the desktop dials in.
 - Messages are written to the local database first, then sent to the peer.
 - The **Mesh** tab shows live discovered peers and their connection state.
   Tap a peer to open a direct chat.
-- Everything is still stored locally, so history survives offline.
-- Desktop joins the mesh in P05 (hotspot + mDNS/TCP).
+- The phone's Mesh tab lists the addresses a computer can reach it on, so you
+  can copy one straight into the desktop app.
+- End-to-end encryption is deliberately deferred until the mesh is stable.
+
+## How to test phone ↔ computer
+1. Install `vozo-debug.apk` on your phone (Android 6+, Google Play Services).
+2. Turn on **mobile hotspot** on the phone, then connect the computer to it.
+3. On the phone, open the **Mesh** tab. Copy one of the listed
+   `192.168.x.x:47653` addresses (use the hotspot one).
+4. Run the desktop app (`./gradlew :vozo:run` from `app/`, or use the packaged
+   Windows build). Open its **Mesh** tab and paste that address into
+   **Phone address**, then press **Connect**.
+5. Tap the peer and send a message. It should appear on the phone instantly.
+6. Keep mobile data off to confirm the link is genuinely local.
+
+If it will not connect, the usual causes are a firewall blocking inbound
+connections on the computer, or picking a `10.x`/`192.168.x` address that
+belongs to a different interface than the one the hotspot uses.
 
 ## How to test with two phones
 1. Install `vozo-debug.apk` on **both** phones (Android 6+, Google Play Services).
@@ -64,8 +82,9 @@ app/
   vozo/
     src/commonMain/       shared UI + data (theme, nav, screens, ChatStore, mesh)
     src/commonMain/sqldelight/   SQLite schema
-    src/androidMain/      Android entry + Nearby transport + SQLite driver
-    src/desktopMain/      desktop entry + SQLite driver (mesh in P05)
+    src/androidMain/      Android entry, Nearby + TCP-host transports, SQLite driver
+    src/desktopMain/      desktop entry, TCP client transport, SQLite driver
+    src/desktopTest/      loopback tests for framing, handshake and delivery
   gradle/libs.versions.toml
 ```
 
@@ -73,6 +92,7 @@ app/
 ```bash
 cd app
 ./gradlew :vozo:assembleDebug              # Android APK
+./gradlew :vozo:desktopTest                # transport tests
 ./gradlew :vozo:packageMsi/packageExe      # Windows installer
 ./gradlew :vozo:run                        # run desktop app
 ```
@@ -219,8 +239,8 @@ Disaster Recovery
 - [ ] Voice Messages
 - [ ] Video Sharing
 - [ ] Offline Calling
-- [ ] Mesh Networking
-- [ ] Cross Platform Support
+- [x] Mesh Networking
+- [x] Cross Platform Support
 
 ---
 

@@ -83,6 +83,13 @@ class ChatStore(
     /** Handles a frame received from a connected peer. */
     fun onFrame(raw: String) {
         when (val frame = Wire.parse(raw)) {
+            is Wire.Frame.Hello -> {
+                database.transaction {
+                    database.vozoDatabaseQueries.upsertPeer(frame.peerId, frame.displayName, now())
+                }
+                conversationForPeer(frame.peerId, frame.displayName)
+            }
+
             is Wire.Frame.Chat -> {
                 val conversationId = conversationForPeer(frame.peerId)
                 database.transaction {
@@ -100,20 +107,21 @@ class ChatStore(
                     )
                 }
             }
+
             else -> Unit
         }
     }
 
-    fun conversationForPeer(peerId: String): String {
+    fun conversationForPeer(peerId: String, peerName: String? = null): String {
         database.vozoDatabaseQueries.selectConversationByPeer(peerId).executeAsOneOrNull()
             ?.let { return it.id }
 
         val id = "p_$peerId"
+        val title = peerName?.takeIf { it.isNotBlank() } ?: peerId.takeLast(6).uppercase()
         database.transaction {
-            database.vozoDatabaseQueries.upsertPeer(peerId, peerId, now())
             database.vozoDatabaseQueries.insertConversation(
                 id = id,
-                title = peerId.takeLast(6).uppercase(),
+                title = title,
                 peer_id = peerId,
                 created_at = now(),
                 updated_at = now(),
@@ -122,7 +130,8 @@ class ChatStore(
         return id
     }
 
-    fun startPeerChat(peerId: String): String = conversationForPeer(peerId)
+    fun startPeerChat(peerId: String, peerName: String? = null): String =
+        conversationForPeer(peerId, peerName)
 
     fun localState(key: String): String? =
         database.vozoDatabaseQueries.getLocalState(key).executeAsOneOrNull()

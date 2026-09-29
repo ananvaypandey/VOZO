@@ -1,0 +1,39 @@
+CREATE TABLE conversation (
+    id TEXT NOT NULL PRIMARY KEY,
+    title TEXT NOT NULL,
+    peer_id TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    last_preview TEXT
+);
+
+CREATE TABLE message (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    conversation_id TEXT NOT NULL REFERENCES conversation(id) ON DELETE CASCADE,
+    sender TEXT NOT NULL,
+    body TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'sent',
+    created_at INTEGER NOT NULL
+);
+
+CREATE INDEX idx_message_conversation ON message(conversation_id, created_at);
+
+selectConversations:
+SELECT * FROM conversation ORDER BY updated_at DESC;
+
+selectConversationById:
+SELECT * FROM conversation WHERE id = ?;
+
+insertConversation:
+INSERT OR IGNORE INTO conversation (id, title, peer_id, created_at, updated_at, last_preview)
+VALUES (?, ?, ?, ?, ?, NULL);
+
+touchConversation:
+UPDATE conversation SET updated_at = ?, last_preview = ? WHERE id = ?;
+
+selectMessages:
+SELECT * FROM message WHERE conversation_id = ? ORDER BY created_at ASC, id ASC;
+
+insertMessage:
+INSERT INTO message (conversation_id, sender, body, status, created_at)
+VALUES (?, ?, ?, ?, ?);

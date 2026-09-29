@@ -23,8 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.voikes.technologies.vozo.data.ChatStore
-import com.voikes.technologies.vozo.mesh.Transport
-import com.voikes.technologies.vozo.mesh.TransportRegistry
+import com.voikes.technologies.vozo.mesh.MeshController
 import com.voikes.technologies.vozo.ui.navigation.AppTab
 import com.voikes.technologies.vozo.ui.navigation.ThemeChoice
 import com.voikes.technologies.vozo.ui.screens.AccountScreen
@@ -37,8 +36,7 @@ import com.voikes.technologies.vozo.ui.theme.VozoTheme
 @Composable
 fun App(
     store: ChatStore,
-    transport: Transport? = null,
-    registry: TransportRegistry? = null,
+    mesh: MeshController? = null,
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(AppTab.Home) }
     var activeConversationId by rememberSaveable { mutableStateOf<String?>(null) }
@@ -100,10 +98,9 @@ fun App(
 
                 selectedTab == AppTab.Mesh -> MeshScreen(
                     modifier = contentModifier,
-                    transport = transport,
-                    registry = registry,
+                    transport = mesh,
                     onOpenPeerChat = { peerId, peerName ->
-                        val id = store.startPeerChat(peerId)
+                        val id = store.startPeerChat(peerId, peerName)
                         activeConversationId = id
                         activeConversationTitle = peerName
                     },

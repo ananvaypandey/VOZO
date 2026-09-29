@@ -40,13 +40,19 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.androidx.activity.compose)
-        implementation(libs.play.services.nearby)
+            implementation(libs.play.services.nearby)
             implementation(libs.sqldelight.android.driver)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.sqldelight.sqlite.driver)
             implementation(libs.sqlite.jdbc)
+            implementation(libs.jmdns)
+        }
+        val desktopTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
         }
     }
 }

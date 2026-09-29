@@ -18,19 +18,24 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.voikes.technologies.vozo.mesh.MeshProtocol
 import com.voikes.technologies.vozo.mesh.Peer
 import com.voikes.technologies.vozo.mesh.Transport
-import com.voikes.technologies.vozo.mesh.TransportRegistry
 import com.voikes.technologies.vozo.mesh.TransportState
 import com.voikes.technologies.vozo.ui.theme.VozoCyan
 import com.voikes.technologies.vozo.ui.theme.VozoOrange
@@ -40,18 +45,20 @@ import kotlinx.coroutines.flow.asStateFlow
 
 private val emptyPeers: StateFlow<List<Peer>> = MutableStateFlow(emptyList())
 private val idleState: StateFlow<TransportState> = MutableStateFlow(TransportState.Idle).asStateFlow()
+private val emptyAddresses: StateFlow<List<String>> = MutableStateFlow(emptyList())
 
 @Composable
 fun MeshScreen(
     modifier: Modifier = Modifier,
     transport: Transport? = null,
-    registry: TransportRegistry? = null,
     onOpenPeerChat: (peerId: String, peerName: String) -> Unit = { _, _ -> },
 ) {
-    val peerSource = transport?.peers ?: registry?.peers ?: emptyPeers
+    val peerSource = transport?.peers ?: emptyPeers
     val stateSource = transport?.state ?: idleState
+    val addressSource = transport?.localAddresses ?: emptyAddresses
     val peers by peerSource.collectAsState()
     val state by stateSource.collectAsState()
+    val addresses by addressSource.collectAsState()
 
     val connected = peers.count { it.connected }
 
@@ -90,11 +97,40 @@ fun MeshScreen(
             }
         }
 
+        if (addresses.isNotEmpty()) {
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.padding(12.dp)) {
+                    Text(
+                        text = "This device can be reached at",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    addresses.forEach { address ->
+                        Text(
+                            text = "$address:${MeshProtocol.PORT}",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = VozoCyan,
+                        )
+                    }
+                    Text(
+                        text = "Enter one of these on the other device.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    )
+                }
+            }
+        }
+
         Text(
             text = "Nearby devices",
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.padding(top = 4.dp),
         )
+
+        if (transport?.needsManualAddress == true) {
+            AddressField(onConnect = { transport.connectTo(it) })
+        }
 
         if (peers.isEmpty()) {
             Box(
@@ -122,7 +158,11 @@ fun MeshScreen(
                         style = MaterialTheme.typography.titleMedium,
                     )
                     Text(
-                        text = "Open VOZO on a second phone nearby. It will appear here automatically.",
+                        text = if (transport?.needsManualAddress == true) {
+                            "On your phone open the Mesh tab and enter this device's address above."
+                        } else {
+                            "Open VOZO on a second phone nearby. It will appear here automatically."
+                        },
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     )
@@ -172,6 +212,34 @@ private fun MeshStat(
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
         )
+    }
+}
+
+@Composable
+private fun AddressField(
+    onConnect: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var address by remember { mutableStateOf("") }
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        OutlinedTextField(
+            value = address,
+            onValueChange = { address = it },
+            singleLine = true,
+            label = { Text("Phone address") },
+            placeholder = { Text("192.168.43.1") },
+            modifier = Modifier.weight(1f),
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Button(
+            onClick = { onConnect(address) },
+            enabled = address.isNotBlank(),
+        ) {
+            Text("Connect")
+        }
     }
 }
 
