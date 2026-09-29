@@ -31,6 +31,42 @@
 
 ---
 
+# Phase 01 — Project Scaffold (in development)
+
+VOZO is being rebuilt as a **Kotlin Multiplatform (Compose Multiplatform)** app
+targeting Android (Play Store) + Windows + macOS. Offline-first, P2P mesh.
+
+> Legacy Google AI Studio prototype content below is retained for reference
+> and will be replaced as development proceeds.
+
+## Current status (P01)
+- KMP scaffold with Android + desktop (JVM) targets.
+- Material 3 theme (VOZO violet `#6C5CE7`, cyan, mint), light/dark mode.
+- Navigation shell: Home, Chats, Mesh, Account tabs; chat thread placeholder.
+- Transport is **not yet implemented** (P03 onward).
+
+## Project layout
+```
+app/
+  composeApp/
+    src/commonMain/   shared UI (theme, navigation, screens)
+    src/androidMain/  Android entry
+    src/desktopMain/  desktop entry
+  gradle/libs.versions.toml
+```
+
+## Build
+```bash
+cd app
+./gradlew :composeApp:assembleDebug              # Android APK
+./gradlew :composeApp:packageMsi/packageExe      # Windows installer
+./gradlew :composeApp:run                        # run desktop app
+```
+
+Requires JDK 17+ and Android SDK (see `app/local.properties`).
+
+---
+
 # 🌍 What is VOZO?
 
 VOZO is a modern **offline-first messaging application** that allows users to communicate **without mobile data, internet, SIM cards, or traditional messaging infrastructure.**
